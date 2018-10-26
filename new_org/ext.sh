@@ -130,12 +130,8 @@ CLI_DELAY=3
 CHANNEL_NAME="mychannel"
 # use this as the default docker-compose yaml definition
 COMPOSE_FILE=docker-compose-cli.yaml
-#
-COMPOSE_FILE_COUCH=docker-compose-couch.yaml
 # use this as the default docker-compose yaml definition
 COMPOSE_FILE_ORG2=docker-compose-org2.yaml
-#
-COMPOSE_FILE_COUCH_ORG2=docker-compose-couch-org2.yaml
 # use golang as the default language for chaincode
 LANGUAGE=golang
 # default image tag
