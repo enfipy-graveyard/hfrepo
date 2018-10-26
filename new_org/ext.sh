@@ -6,20 +6,20 @@
 #
 
 # Use the CLI container to create the configuration transaction needed to add
-# Org3 to the network
+# Org2 to the network
 function createConfigTx () {
   echo
   echo "###############################################################"
-  echo "####### Generate and submit config tx to add Org3 #############"
+  echo "####### Generate and submit config tx to add Org2 #############"
   echo "###############################################################"
-  docker exec cli scripts/step1org3.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec cli scripts/step1org2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to create config tx"
     exit 1
   fi
 }
 
-# Generates Org3 certs using cryptogen tool
+# Generates Org2 certs using cryptogen tool
 function generateCerts (){
   which cryptogen
   if [ "$?" -ne 0 ]; then
@@ -28,12 +28,12 @@ function generateCerts (){
   fi
   echo
   echo "###############################################################"
-  echo "##### Generate Org3 certificates using cryptogen tool #########"
+  echo "##### Generate Org2 certificates using cryptogen tool #########"
   echo "###############################################################"
 
-  (cd org3-artifacts
+  (cd org2-artifacts
    set -x
-   cryptogen generate --config=./org3-crypto.yaml
+   cryptogen generate --config=./org2-crypto.yaml
    res=$?
    set +x
    if [ $res -ne 0 ]; then
@@ -52,65 +52,61 @@ function generateChannelArtifacts() {
     exit 1
   fi
   echo "##########################################################"
-  echo "#########  Generating Org3 config material ###############"
+  echo "#########  Generating Org2 config material ###############"
   echo "##########################################################"
-  (cd org3-artifacts
+  (cd org2-artifacts
    export FABRIC_CFG_PATH=$PWD
    set -x
-   configtxgen -printOrg Org3MSP > ../channel-artifacts/org3.json
+   configtxgen -printOrg Org2MSP > ../channel-artifacts/org2.json
    res=$?
    set +x
    if [ $res -ne 0 ]; then
-     echo "Failed to generate Org3 config material..."
+     echo "Failed to generate Org2 config material..."
      exit 1
    fi
   )
-  cp -r crypto-config/ordererOrganizations org3-artifacts/crypto-config/
+  cp -r crypto-config/ordererOrganizations org2-artifacts/crypto-config/
   echo
 }
 
 # Generate the needed certificates, the genesis block and start the network.
 function networkUp () {
   # generate artifacts if they don't exist
-  if [ ! -d "org3-artifacts/crypto-config" ]; then
+  if [ ! -d "org2-artifacts/crypto-config" ]; then
     generateCerts
     generateChannelArtifacts
     createConfigTx
   fi
-  # start org3 peers
-  if [ "${IF_COUCHDB}" == "couchdb" ]; then
-      IMAGE_TAG=${IMAGETAG} docker-compose -f $COMPOSE_FILE_ORG3 -f $COMPOSE_FILE_COUCH_ORG3 up -d 2>&1
-  else
-      IMAGE_TAG=$IMAGETAG docker-compose -f $COMPOSE_FILE_ORG3 up -d 2>&1
-  fi
+  # start org2 peers
+  IMAGE_TAG=$IMAGETAG docker-compose -f $COMPOSE_FILE_ORG2 up -d 2>&1
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to start Org3 network"
+    echo "ERROR !!!! Unable to start Org2 network"
     exit 1
   fi
   echo
   echo "###############################################################"
-  echo "############### Have Org3 peers join network ##################"
+  echo "############### Have Org2 peers join network ##################"
   echo "###############################################################"
-  docker exec Org3cli ./scripts/step2org3.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec Org2cli ./scripts/step2org2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to have Org3 peers join network"
+    echo "ERROR !!!! Unable to have Org2 peers join network"
     exit 1
   fi
   echo
   echo "###############################################################"
-  echo "##### Upgrade chaincode to have Org3 peers on the network #####"
+  echo "##### Upgrade chaincode to have Org2 peers on the network #####"
   echo "###############################################################"
-  docker exec cli ./scripts/step3org3.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec cli ./scripts/step3org2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to add Org3 peers on network"
+    echo "ERROR !!!! Unable to add Org2 peers on network"
     exit 1
   fi
   # finish by running the test
-  docker exec Org3cli ./scripts/testorg3.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
-  if [ $? -ne 0 ]; then
-    echo "ERROR !!!! Unable to run test"
-    exit 1
-  fi
+  # docker exec Org2cli ./scripts/testorg2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  # if [ $? -ne 0 ]; then
+  #   echo "ERROR !!!! Unable to run test"
+  #   exit 1
+  # fi
 }
 
 # If BYFN wasn't run abort
@@ -137,9 +133,9 @@ COMPOSE_FILE=docker-compose-cli.yaml
 #
 COMPOSE_FILE_COUCH=docker-compose-couch.yaml
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE_ORG3=docker-compose-org3.yaml
+COMPOSE_FILE_ORG2=docker-compose-org2.yaml
 #
-COMPOSE_FILE_COUCH_ORG3=docker-compose-couch-org3.yaml
+COMPOSE_FILE_COUCH_ORG2=docker-compose-couch-org2.yaml
 # use golang as the default language for chaincode
 LANGUAGE=golang
 # default image tag

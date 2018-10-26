@@ -5,14 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# This script is designed to be run in the org3cli container as the
-# second step of the EYFN tutorial. It joins the org3 peers to the
-# channel previously setup in the BYFN tutorial and install the
-# chaincode as version 2.0 on peer0.org3.
-#
-
 echo
-echo "========= Getting Org3 on to your first network ========= "
+echo "========= Getting Org2 on to your first network ========= "
 echo
 CHANNEL_NAME="$1"
 DELAY="$2"
@@ -44,15 +38,13 @@ set +x
 cat log.txt
 verifyResult $res "Fetching config block from orderer has Failed"
 
-joinChannelWithRetry 0 3
-echo "===================== peer0.org3 joined channel '$CHANNEL_NAME' ===================== "
-joinChannelWithRetry 1 3
-echo "===================== peer1.org3 joined channel '$CHANNEL_NAME' ===================== "
-echo "Installing chaincode 2.0 on peer0.org3..."
-installChaincode 0 3 2.0
+joinChannelWithRetry 0 2
+echo "===================== peer0.org2 joined channel '$CHANNEL_NAME' ===================== "
+echo "Installing chaincode 2.0 on peer0.org2..."
+installChaincode 0 2 2.0
 
 echo
-echo "========= Org3 is now halfway onto your first network ========= "
+echo "========= Org2 is now halfway onto your first network ========= "
 echo
 
 exit 0
