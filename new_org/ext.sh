@@ -87,7 +87,7 @@ function networkUp () {
   echo "###############################################################"
   echo "############### Have Org2 peers join network ##################"
   echo "###############################################################"
-  docker exec Org2cli ./scripts/step2org2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  docker exec org2cli ./scripts/step2org2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
   if [ $? -ne 0 ]; then
     echo "ERROR !!!! Unable to have Org2 peers join network"
     exit 1
@@ -102,7 +102,7 @@ function networkUp () {
     exit 1
   fi
   # finish by running the test
-  # docker exec Org2cli ./scripts/testorg2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
+  # docker exec org2cli ./scripts/testorg2.sh $CHANNEL_NAME $CLI_DELAY $LANGUAGE $CLI_TIMEOUT $VERBOSE
   # if [ $? -ne 0 ]; then
   #   echo "ERROR !!!! Unable to run test"
   #   exit 1
