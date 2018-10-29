@@ -1,7 +1,7 @@
 version: '3.2'
 
 volumes:
-  peer1org1:
+  peer2org1:
 
 networks:
   basic:
@@ -9,8 +9,8 @@ networks:
       name: basic
 
 services:
-  
-  peer1org1:
+
+  peer2org1:
     image: hyperledger/fabric-peer
     deploy:
       mode: replicated
@@ -19,45 +19,45 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer1org1
+      - CORE_PEER_ID=peer2org1
       - CORE_LOGGING_PEER=debug
       - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
-      - CORE_PEER_ADDRESS=peer1org1:7051
+      - CORE_PEER_ADDRESS=peer2org1:7051
       # the following setting starts chaincode containers on the same
       # bridge network as the peers
       # https://docs.docker.com/compose/networking/
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
       - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     # Add --peer-chaincodedev=true
     command: peer node start
     ports:
-     - published: 7051
-       target: 7051
-       mode: host
-     - published: 7053
-       target: 7053
-       mode: host
+      - published: 7051
+        target: 7051
+        mode: host
+      - published: 7053
+        target: 7053
+        mode: host
     volumes:
         - /var/run/:/host/var/run/
-        - /home/centos/fabricdev/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/msp:/etc/hyperledger/msp/peer
+        - /home/centos/fabricdev/crypto-config/peerOrganizations/org1.example.com/peers/peer2.org1.example.com/msp:/etc/hyperledger/msp/peer
         - /home/centos/fabricdev/crypto-config/peerOrganizations/org1.example.com/users:/etc/hyperledger/msp/users
         - /home/centos/fabricdev/config:/etc/hyperledger/configtx
-        - peer1org1:/var/hyperledger/production
+        - peer2org1:/var/hyperledger/production
     depends_on:
-      - couchdb1
+      - couchdb2
     networks:
       - basic
 
-  couchdb1:
+  couchdb2:
     image: hyperledger/fabric-couchdb
     deploy:
       mode: replicated
@@ -66,14 +66,14 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     environment:
       - COUCHDB_USER=
       - COUCHDB_PASSWORD=
     ports:
-     - published: 5984
-       target: 5984
-       mode: host
+      - published: 5984
+        target: 5984
+        mode: host
     networks:
       - basic
 
@@ -86,14 +86,14 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer1.org1.example.com:7051
+      - CORE_PEER_ADDRESS=peer2org1:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
       - CORE_CHAINCODE_KEEPALIVE=10
