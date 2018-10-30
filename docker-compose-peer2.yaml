@@ -9,7 +9,7 @@ networks:
       name: basic
 
 services:
-  
+
   peer1org1:
     image: hyperledger/fabric-peer
     deploy:
@@ -19,7 +19,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_PEER_ID=peer1org1
@@ -40,12 +40,12 @@ services:
     # Add --peer-chaincodedev=true
     command: peer node start
     ports:
-     - published: 7051
-       target: 7051
-       mode: host
-     - published: 7053
-       target: 7053
-       mode: host
+      - published: 7051
+        target: 7051
+        mode: host
+      - published: 7053
+        target: 7053
+        mode: host
     volumes:
         - /var/run/:/host/var/run/
         - /home/centos/fabricdev/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/msp:/etc/hyperledger/msp/peer
@@ -66,14 +66,14 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     environment:
       - COUCHDB_USER=
       - COUCHDB_PASSWORD=
     ports:
-     - published: 5984
-       target: 5984
-       mode: host
+      - published: 5984
+        target: 5984
+        mode: host
     networks:
       - basic
 
@@ -86,14 +86,14 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == ip-172-31-23-232.ec2.internal
+          - node.hostname == $HOSTNAME
     tty: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer1.org1.example.com:7051
+      - CORE_PEER_ADDRESS=peer1org1:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
       - CORE_CHAINCODE_KEEPALIVE=10

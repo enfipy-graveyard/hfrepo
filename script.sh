@@ -23,6 +23,8 @@ docker run --rm -it --network="basic" --name couchdb1 -p 6984:5984 -e COUCHDB_US
 docker network create --attachable --driver overlay basic
 
 
+docker swarm join --token SWMTKN-1-32tvl5r4f6xk6a22ykncntvq0j5fazcjpjeol9qklqn6xuz01d-2au4xgpk7p9ihnhov3kr4fox0 18.234.110.107:2377
+
 
 
 docker service create \
