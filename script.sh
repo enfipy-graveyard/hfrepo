@@ -7,9 +7,18 @@ CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer
 
 peer channel fetch 0 mychannel.block --channelID mychannel --orderer orderer.example.com:7050
 
-CORE_PEER_ADDRESS=peer1org1:7051
+CORE_PEER_ADDRESS=peer0.org1.example.com:7051
 
 peer channel join -b mychannel.block
+
+peer chaincode install -n petroleum -v 0.2.4 -p "github.com/petroleum" -l "golang"
+
+peer chaincode package -n petroleum -v 0.2.4 -p "github.com/petroleum" -l "golang" -s -S proleum.out
+
+peer chaincode invoke -C mychannel -n petroleum -c '{"Args":[""]}'
+
+peer chaincode query -C mychannel -n petroleum -c '{"Args":["query","a"]}'
+
 
 extra_hosts:
   - "peer1.org1.example.com:54.224.120.200
@@ -18,13 +27,22 @@ extra_hosts:
 
 docker run --rm -it --network="basic" --name couchdb1 -p 6984:5984 -e COUCHDB_USER= -e COUCHDB_PASSWORD= -e CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=basic hyperledger/fabric-couchdb
 
-
+docker swarm join --token SWMTKN-1-32tvl5r4f6xk6a22ykncntvq0j5fazcjpjeol9qklqn6xuz01d-2au4xgpk7p9ihnhov3kr4fox0 
+../bin/cryptogen extend --config=./crypto-config.yaml
 
 docker network create --attachable --driver overlay basic
+
+docker network create --driver overlay --subnet 10.0.9.0/24 --gateway 10.0.9.99 basic
 
 
 docker swarm join --token SWMTKN-1-32tvl5r4f6xk6a22ykncntvq0j5fazcjpjeol9qklqn6xuz01d-2au4xgpk7p9ihnhov3kr4fox0 18.234.110.107:2377
 
+docker swarm join --token SWMTKN-1-32tvl5r4f6xk6a22ykncntvq0j5fazcjpjeol9qklqn6xuz01d-2au4xgpk7p9ihnhov3kr4fox0 --advertise-addr 54.205.207.45 52.90.171.94:2377
+
+
+docker stack deploy --compose-file docker-compose-peer2.yaml peer2
+
+docker stack deploy --compose-file docker-compose-peer3.yaml peer3
 
 
 docker service create \
